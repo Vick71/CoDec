@@ -506,7 +506,7 @@ public class coDec {
             while ((strLinea = buffer.readLine()) != null)   {
                 //strLinea = strLinea.toLowerCase();
                 if(strLinea.contains(Encriptar(parametro))){
-                    int longitudParametro = parametro.length();
+                    int longitudParametro = Encriptar(parametro).length();
                     regresaParametro = strLinea.substring(longitudParametro);
                 }                                
             }
