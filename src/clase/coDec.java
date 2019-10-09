@@ -439,13 +439,13 @@ public class coDec {
             if(ArchivoCfg.exists()){
                 Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
                 for (int i=0;i<Longitud;i++){
-                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]));
+                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]) + System.lineSeparator());
                 }
             }
             else{
                 Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
                 for (int i=0;i<Longitud;i++){
-                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]));
+                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]) + System.lineSeparator());
                 }
             }
             Bw.close();
@@ -470,13 +470,13 @@ public class coDec {
             if(ArchivoCfg.exists()){
                 Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
                 for (int i=0;i<Longitud;i++){
-                    Bw.write(Parametro[i] + Dato[i]);
+                    Bw.write(Parametro[i] + Dato[i] + System.lineSeparator());
                 }
             }
             else{
                 Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
                 for (int i=0;i<Longitud;i++){
-                    Bw.write(Parametro[i] + Dato[i]);
+                    Bw.write(Parametro[i] + Dato[i] + System.lineSeparator());
                 }
             }
             Bw.close();
