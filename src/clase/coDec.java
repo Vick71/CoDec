@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Base64;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +20,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.BodyPart;
@@ -53,8 +56,10 @@ import javax.swing.JOptionPane;
  * 11 Feb 2018
  * @version 7.1
  * 02 Feb 2019
- * @version 7,2
+ * @version 7.2
  * 17 Sep 2019
+ * @version 7.3
+ * 09 Oct 2019
  */
 
 public class coDec {
@@ -69,7 +74,7 @@ public class coDec {
      * @serialField 
      */
     private static String secretKey = "-V1c7=R M@nu3l Rqm05-";
-    private static final String VersionCoDec = "7.2";
+    private static final String VersionCoDec = "7.3";
     
     private static String Smtp = "mail.pydee.com.mx";
     private static String EnableTLS = "true";
@@ -420,12 +425,110 @@ public class coDec {
     }
     
     /**
-     * Metodo para leer parametro de archivo de configuracion
+     * Metodo para generar archivo de configuracion con datos encriptados
+     * @param Archivo
+     * @param Parametro
+     * @param Dato 
+     */
+    public static void generaArchivo(String Archivo, String[] Parametro, String[] Dato){
+        
+        int Longitud = Parametro.length;
+        try {
+            File ArchivoCfg = new File(Archivo);
+            BufferedWriter Bw;
+            if(ArchivoCfg.exists()){
+                Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
+                for (int i=0;i<Longitud;i++){
+                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]));
+                }
+            }
+            else{
+                Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
+                for (int i=0;i<Longitud;i++){
+                    Bw.write(Encriptar(Parametro[i]) + Encriptar(Dato[i]));
+                }
+            }
+            Bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(coDec.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "error al generar o actualizar archivo de configuracion " + ex.getMessage(), "coDec" + VersionCoDec + " dice:", 0);
+        }            
+    }
+    
+    /**
+     * Metodo para generar archivo de configuracion con datos sin encriptar
+     * @param Archivo
+     * @param Parametro
+     * @param Dato 
+     */
+    public static void generaArchivoSE(String Archivo, String[] Parametro, String[] Dato){
+        
+        int Longitud = Parametro.length;
+        try {
+            File ArchivoCfg = new File(Archivo);
+            BufferedWriter Bw;
+            if(ArchivoCfg.exists()){
+                Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
+                for (int i=0;i<Longitud;i++){
+                    Bw.write(Parametro[i] + Dato[i]);
+                }
+            }
+            else{
+                Bw = new BufferedWriter(new FileWriter(ArchivoCfg));
+                for (int i=0;i<Longitud;i++){
+                    Bw.write(Parametro[i] + Dato[i]);
+                }
+            }
+            Bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(coDec.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "error al generar o actualizar archivo de configuracion " + ex.getMessage(), "coDec" + VersionCoDec + " dice:", 0);
+        }            
+    }    
+    
+    /**
+     * Metodo para leer parametro encriptado de archivo de configuracion
      * @param parametro String parametro a leer
      * @param archivo String nombre de archivo
-     * @return String valor del parametro
+     * @return String valor del parametro ya desencriptado
      */
     public static String leeParametro(String parametro, String archivo){
+        try{
+            // Abrimos el archivo
+            FileInputStream archivo2 = new FileInputStream(archivo);
+            // Creamos el objeto de entrada
+            DataInputStream entrada = new DataInputStream(archivo2);
+            // Creamos el Buffer de Lectura
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(entrada));
+            String strLinea;
+            // Leer el archivo linea por linea
+            String regresaParametro = null;
+            while ((strLinea = buffer.readLine()) != null)   {
+                //strLinea = strLinea.toLowerCase();
+                if(strLinea.contains(Encriptar(parametro))){
+                    int longitudParametro = parametro.length();
+                    regresaParametro = strLinea.substring(longitudParametro);
+                }                                
+            }
+            // Cerramos el archivo
+            entrada.close();
+            return Desencriptar(regresaParametro);
+        }catch (Exception e){ //Catch de excepciones
+            //log.error("Error en clase arametros metodo leeParametro " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "error en lectura de archivo de configuracion " + e.getMessage(), "coDec" + VersionCoDec + " dice:", 0);
+            //System.exit(0);
+            return null;
+        }
+            
+    }    
+    
+    /**
+     * Metodo para leer parametro no encriptado de archivo de configuracion
+     * @param parametro String parametro a leer
+     * @param archivo String nombre de archivo
+     * @return String valor del parametro no encriptado
+     */
+    public static String leeParametroSE(String parametro, String archivo){
         try{
             // Abrimos el archivo
             FileInputStream archivo2 = new FileInputStream(archivo);
@@ -453,7 +556,7 @@ public class coDec {
             return null;
         }
             
-    }    
+    } 
     
     /**
      * Metodo para obtener la ruta actual
